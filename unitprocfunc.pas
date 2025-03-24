@@ -10,7 +10,68 @@ procedure MoveCarte2DFleche;
 procedure AffichageGuiBas;
 procedure DragAndDropCarte2D;
 procedure ZoomCarte2D;
+function GetHexagonAtPosition(x, y: Single): Integer;
+
 implementation
+
+function GetHexagonAtPosition(x, y: Single): Integer;
+var
+  i: Integer;
+  minDistance, distance: Single;
+  closestHex: Integer;
+  startIdx, endIdx: Integer;
+  mouseScreenPos: TVector2;
+begin
+  Result := 0; // Retourne 0 par défaut (clic hors de la carte ou aucun hexagone trouvé)
+
+  // Récupérer les coordonnées brutes de la souris (espace de l'écran)
+  mouseScreenPos := GetMousePosition();
+
+  // Vérifier si le clic est dans la zone visible (hors des bordures noires)
+  // Utiliser directement les coordonnées de l'écran, avant conversion
+  if (mouseScreenPos.x < leftBorderWidth) or
+     (mouseScreenPos.x > screenWidth - rightBorderWidth) or
+     (mouseScreenPos.y < topBorderHeight) or
+     (mouseScreenPos.y > screenHeight - bottomBorderHeight) then
+  begin
+    Exit; // Retourne 0 si le clic est dans les bordures noires
+  end;
+
+  // Si le clic est dans la zone visible, chercher l'hexagone
+  minDistance := 10000; // Distance initiale très grande
+  closestHex := -1;
+
+  // Déterminer le groupe en fonction de y (espace du monde)
+  if y <= 565 then
+  begin
+    startIdx := 0; // Hexagones 1 à 288 (indices 0 à 287)
+    endIdx := 287;
+  end
+  else if y <= 1060 then
+  begin
+    startIdx := 288; // Hexagones 289 à 576 (indices 288 à 575)
+    endIdx := 575;
+  end
+  else
+  begin
+    startIdx := 576; // Hexagones 577 à 832 (indices 576 à 831)
+    endIdx := HexagonCount - 1;
+  end;
+
+  // Parcourir les hexagones du groupe
+  for i := startIdx to endIdx do
+  begin
+    distance := Sqrt(Sqr(x - Hexagons[i].CenterX) + Sqr(y - Hexagons[i].CenterY));
+    if distance < minDistance then
+    begin
+      minDistance := distance;
+      closestHex := Hexagons[i].ID;
+    end;
+  end;
+
+  if closestHex >= 0 then
+    Result := closestHex;
+end;
 
 procedure MoveCarte2DFleche;
 begin

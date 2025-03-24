@@ -14,7 +14,6 @@ begin
   // Charger une image (remplacez "large_image.png" par votre image)
   Pchartxt:='resources/newlacarte.png';
 
-
   InitWindow(screenWidth, screenHeight, pchartxt);
   SetTargetFPS(60);
 
@@ -22,6 +21,7 @@ begin
     texture := LoadTextureFromImage(image);
     UnloadImage(image); // L'image originale peut être déchargée après la conversion
    // initialisation des ressources
+   writeln('ok, j ai la main!');
    chargeressource();
    initialisezCamera2D();
  while not WindowShouldClose() do
@@ -30,6 +30,9 @@ begin
   begin
     mousePos := GetMousePosition();
     worldPosition := GetScreenToWorld2D(mousePos, camera);
+    // Détecter l'hexagone cliqué avec la méthode point dans le polygone
+    clickedHexID := GetHexagonAtPosition(worldPosition.x, worldPosition.y);
+    writeln(clickedHexID);
   end;
 
   // Déplacement avec les touches fléchées
